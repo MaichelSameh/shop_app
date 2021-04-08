@@ -37,7 +37,16 @@ class MyApp extends StatelessWidget {
           fontFamily: "Lato",
         ),
         debugShowCheckedModeBanner: false,
-        initialRoute: AuthScreen.routeName,
+        home: ctx.watch<Auth>().isAuth
+            ? ProductOverviewScreen()
+            : FutureBuilder(
+                future: ctx.read<Auth>().tryAutoLogin(),
+                builder: (_, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: SplashScreen());
+                  }
+                  return AuthScreen();
+                }),
         routes: {
           AuthScreen.routeName: (ctx) => AuthScreen(),
           CartScreen.routeName: (ctx) => OrdersScreen(),

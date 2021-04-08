@@ -1,6 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../models/http_exeption.dart';
+
+import '../providers/auth.dart';
 
 class AuthScreen extends StatelessWidget {
   static const String routeName = "/auth";
@@ -121,7 +126,7 @@ class _AuthCardState extends State<AuthCard>
       ),
     );
 
-    _opacityAnimation = Tween<double>(begin: 0, end: 1).animate(
+    _opacityAnimation = Tween<double>(begin: 1, end: 0).animate(
       CurvedAnimation(
         parent: _animationController,
         curve: Curves.easeIn,
@@ -139,16 +144,57 @@ class _AuthCardState extends State<AuthCard>
     if (!_formKey.currentState.validate()) {
       return;
     }
+    FocusScope.of(context).unfocus();
+    _formKey.currentState.save();
 
     setState(() {
       _isLoading = true;
     });
 
-    try {} catch (error) {}
+    try {
+      await context
+          .read<Auth>()
+          .authentication(_authData["email"], _authData["password"], _authMode);
+    } on HttpException catch (error) {
+      var errorMessage = "Authentication faild";
+      if (error.toString().contains("EMAIL_EXISTS")) {
+        errorMessage = "This E-Mail address is already in use.";
+      } else if (error.toString().contains("INVALID_EMAIL")) {
+        errorMessage = "This is not a valid E-Mail address.";
+      } else if (error.toString().contains("WEAK_PASSWORD")) {
+        errorMessage = "This password is too weak.";
+      } else if (error.toString().contains("EMAIL_NOT_FOUND")) {
+        errorMessage = "Could not find a user with this email.";
+      } else if (error.toString().contains("INVALID_PASSWORD")) {
+        errorMessage = "Invalid Password.";
+      }
+      _showErrorDialog(errorMessage);
+    } catch (error) {
+      const errorMessage = "Could not authenticate you. pleas try again later.";
+      _showErrorDialog(errorMessage);
+    }
 
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showErrorDialog(String errorMessage) {
+    showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: Text("An error occured"),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: Text("Okay!")),
+            ],
+          );
+        });
   }
 
   void _switchAuthMode() {
@@ -220,25 +266,26 @@ class _AuthCardState extends State<AuthCard>
                     ),
                     curve: Curves.easeIn,
                     child: FadeTransition(
-                        opacity: _opacityAnimation,
-                        child: SlideTransition(
-                          position: _slideAnimation,
-                          child: TextFormField(
-                            enabled: _isSignUp,
-                            decoration:
-                                InputDecoration(labelText: "Conferm password"),
-                            keyboardType: TextInputType.visiblePassword,
-                            obscureText: true,
-                            validator: _isSignUp
-                                ? (val) {
-                                    if (_passwordController.text != val) {
-                                      return "Passwords do not match";
-                                    } else
-                                      return null;
-                                  }
-                                : null,
-                          ),
-                        )),
+                      opacity: _opacityAnimation,
+                      child: SlideTransition(
+                        position: _slideAnimation,
+                        child: TextFormField(
+                          enabled: _isSignUp,
+                          decoration:
+                              InputDecoration(labelText: "Conferm password"),
+                          keyboardType: TextInputType.visiblePassword,
+                          obscureText: true,
+                          validator: _isSignUp
+                              ? (val) {
+                                  if (_passwordController.text != val) {
+                                    return "Passwords do not match";
+                                  } else
+                                    return null;
+                                }
+                              : null,
+                        ),
+                      ),
+                    ),
                   ),
                 SizedBox(height: 20),
                 if (_isLoading)
