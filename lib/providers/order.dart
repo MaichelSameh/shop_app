@@ -43,6 +43,17 @@ class Orders with ChangeNotifier {
 
       List<OrderItem> loadedOrders = [];
       extractedData.forEach((orderId, orderData) {
+        if (orderData["products"] == null) {
+          try {
+            final url =
+                "https://shop-app-4a8bc-default-rtdb.firebaseio.com/orders/$userId/$orderId.json?auth=$authToken";
+            http.delete(Uri.parse(url));
+            print("Item removed");
+          } on Exception catch (e) {
+            print("error removing the item");
+          }
+          return;
+        }
         loadedOrders.add(
           OrderItem(
             id: orderId,
@@ -51,10 +62,8 @@ class Orders with ChangeNotifier {
               return CartItem(
                 id: item["id"],
                 title: item["title"],
-                quantity: int.parse(item["quantity"]),
-                price: double.parse(
-                  item["price"],
-                ),
+                quantity: int.parse(item["quantity"].toString()),
+                price: double.parse(item["price"].toString()),
               );
             }).toList(),
             dateTime: DateTime.parse(
@@ -67,6 +76,7 @@ class Orders with ChangeNotifier {
       _orders = loadedOrders.reversed.toList();
       notifyListeners();
     } catch (error) {
+      print(error);
       throw error;
     }
   }
