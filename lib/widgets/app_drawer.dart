@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/main.dart';
 
 import '../screens/orders_screen.dart';
 import '../screens/user_products_screen.dart';
@@ -51,6 +52,7 @@ class AppDrawer extends StatelessWidget {
               onTap: () {
                 Navigator.of(ctx).pop();
                 ctx.read<Auth>().logout();
+                Navigator.of(ctx).pushReplacementNamed(HomeScreen.routeName);
               },
             ),
           ],

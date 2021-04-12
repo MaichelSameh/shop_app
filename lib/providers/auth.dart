@@ -108,6 +108,7 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    print("logout");
     _token = null;
     _userId = null;
     _expiryDate = null;

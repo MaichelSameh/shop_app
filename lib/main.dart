@@ -53,18 +53,8 @@ class MyApp extends StatelessWidget {
           fontFamily: "Lato",
         ),
         debugShowCheckedModeBanner: false,
-        home: ctx.watch<Auth>().isAuth
-            ? ProductOverviewScreen()
-            : FutureBuilder(
-                future: ctx.read<Auth>().tryAutoLogin(),
-                builder: (_, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: SplashScreen());
-                  }
-                  return AuthScreen();
-                },
-              ),
         routes: {
+          HomeScreen.routeName: (ctx) => HomeScreen(),
           CartScreen.routeName: (ctx) => CartScreen(),
           AuthScreen.routeName: (ctx) => AuthScreen(),
           OrdersScreen.routeName: (ctx) => OrdersScreen(),
@@ -76,5 +66,23 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  static const String routeName = "/";
+  @override
+  Widget build(BuildContext context) {
+    return context.watch<Auth>().isAuth
+        ? ProductOverviewScreen()
+        : FutureBuilder(
+            future: context.read<Auth>().tryAutoLogin(),
+            builder: (_, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: SplashScreen());
+              }
+              return AuthScreen();
+            },
+          );
   }
 }
