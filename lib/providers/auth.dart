@@ -54,7 +54,7 @@ class Auth with ChangeNotifier {
       );
       final responseData = json.decode(res.body);
       if (responseData["error"] != null) {
-        HttpException(responseData["error"]["message"]).toString();
+        throw HttpException(responseData["error"]["message"]).toString();
       }
       _token = responseData["idToken"];
       _userId = responseData["localId"];
@@ -116,9 +116,12 @@ class Auth with ChangeNotifier {
       _authTimer.cancel();
       _authTimer = null;
     }
-    notifyListeners();
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.remove("userData");
+
+    print("logout");
+
+    notifyListeners();
   }
 }

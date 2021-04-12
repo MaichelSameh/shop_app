@@ -27,8 +27,24 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<Auth>.value(value: Auth()),
         ChangeNotifierProvider<Cart>.value(value: Cart()),
-        ChangeNotifierProvider<Order>.value(value: Order()),
-        ChangeNotifierProvider<Products>.value(value: Products()),
+        ChangeNotifierProxyProvider<Auth, Order>(
+          create: (_) => Order(),
+          update: (ctx, authValue, previousOrdder) => previousOrdder
+            ..getData(
+              authValue.token,
+              authValue.userId,
+              previousOrdder.orders,
+            ),
+        ),
+        ChangeNotifierProxyProvider<Auth, Products>(
+          create: (_) => Products(),
+          update: (ctx, authValue, previousProduct) => previousProduct
+            ..getData(
+              authValue.token,
+              authValue.userId,
+              previousProduct.items == null ? [] : previousProduct.items,
+            ),
+        ),
       ],
       builder: (ctx, child) => MaterialApp(
         theme: ThemeData(
@@ -46,10 +62,12 @@ class MyApp extends StatelessWidget {
                     return Center(child: SplashScreen());
                   }
                   return AuthScreen();
-                }),
+                },
+              ),
         routes: {
           AuthScreen.routeName: (ctx) => AuthScreen(),
           CartScreen.routeName: (ctx) => OrdersScreen(),
+          OrdersScreen.routeName: (ctx) => OrdersScreen(),
           SplashScreen.routeName: (ctx) => SplashScreen(),
           EditProductScreen.routeName: (ctx) => EditProductScreen(),
           UserProductScreen.routeName: (ctx) => UserProductScreen(),
