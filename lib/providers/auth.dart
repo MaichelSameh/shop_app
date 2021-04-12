@@ -39,7 +39,7 @@ class Auth with ChangeNotifier {
         ? "accounts:signUp"
         : "accounts:signInWithPassword";
     final String url =
-        "https://identitytoolkit.googleapis.com/v1/${urlSegment}?key=AIzaSyDW2DemMYmaXeD60zQv72rbBZKsmMw362s";
+        "https://identitytoolkit.googleapis.com/v1/$urlSegment?key=AIzaSyDW2DemMYmaXeD60zQv72rbBZKsmMw362s";
 
     final userInputData = {
       "email": email,
@@ -77,17 +77,16 @@ class Auth with ChangeNotifier {
       );
       pref.setString("userData", userData);
     } catch (error) {
+      print(error);
       throw error;
     }
   }
 
   Future<bool> tryAutoLogin() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
     if (pref.containsKey("userData")) {
       String res = pref.getString("userData");
-      Map<String, String> userData = json.decode(res);
-
+      Map<String, dynamic> userData = json.decode(res);
       _token = userData["token"];
       _userId = userData["userId"];
       _expiryDate = DateTime.parse(userData["expiryDate"]);
@@ -119,8 +118,6 @@ class Auth with ChangeNotifier {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.remove("userData");
-
-    print("logout");
 
     notifyListeners();
   }

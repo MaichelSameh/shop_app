@@ -28,7 +28,7 @@ class Product with ChangeNotifier {
     _id = id;
     _title = title;
     _description = description;
-    _imageUrl = _imageUrl;
+    _imageUrl = imageUrl;
     _price = price;
     _isFavorite = isFavorite;
   }

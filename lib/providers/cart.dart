@@ -54,7 +54,7 @@ class Cart with ChangeNotifier {
         (existingCartItem) => CartItem(
           id: existingCartItem.id,
           title: existingCartItem.title,
-          quantity: existingCartItem.quantity - 1,
+          quantity: existingCartItem.quantity + 1,
           price: existingCartItem.price,
         ),
       );
@@ -82,7 +82,7 @@ class Cart with ChangeNotifier {
     if (!items.containsKey(productId)) {
       return;
     }
-    if (items[productId].price > 1) {
+    if (items[productId].quantity > 1) {
       _items.update(
         productId,
         (existingCartItem) => CartItem(
@@ -91,9 +91,10 @@ class Cart with ChangeNotifier {
             quantity: existingCartItem.quantity - 1,
             price: existingCartItem.price),
       );
-      notifyListeners();
+      print("decremented");
     } else {
       _items.remove(productId);
+      print("Rmoved");
     }
     notifyListeners();
   }
