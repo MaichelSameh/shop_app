@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<Auth>.value(value: Auth()),
         ChangeNotifierProvider<Cart>.value(value: Cart()),
-        ChangeNotifierProxyProvider<Auth, Order>(
-          create: (_) => Order(),
+        ChangeNotifierProxyProvider<Auth, Orders>(
+          create: (_) => Orders(),
           update: (ctx, authValue, previousOrdder) => previousOrdder
             ..getData(
               authValue.token,
@@ -65,8 +65,8 @@ class MyApp extends StatelessWidget {
                 },
               ),
         routes: {
+          CartScreen.routeName: (ctx) => CartScreen(),
           AuthScreen.routeName: (ctx) => AuthScreen(),
-          CartScreen.routeName: (ctx) => OrdersScreen(),
           OrdersScreen.routeName: (ctx) => OrdersScreen(),
           SplashScreen.routeName: (ctx) => SplashScreen(),
           EditProductScreen.routeName: (ctx) => EditProductScreen(),
